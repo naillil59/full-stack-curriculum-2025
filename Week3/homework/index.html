@@ -10,6 +10,17 @@
 <body>
 	<div id='main-container'>
 		<div id='weather-container'>
+			<h4 id="date"></h4>
+			<h2 id="weather-for-city"></h2>
+			<br>
+			<div class ="whole">
+				<div class="current">
+					<h3 id="weather-condition"></h3>
+					<h1 id="current-temp"></h1>
+					<h4 id="aqi"></h4>
+				</div>
+				<img src="" id="condition-picture">
+			</div>
 		</div> 
 	</div>
 	<div id='side-container'>
@@ -23,7 +34,7 @@
 
 <script>
 		// USE YOUR OWN API KEY
-		const apiKey = "";
+		const apiKey = "f5a4ed1f797a72dc41c1c40b0bcef3a7";
 
         // variable that stores the city that is chosen
 		let city;
@@ -62,7 +73,7 @@
 			}
 		}
 
-		// function that renders the search results as a unordered list
+		// function that renders the search results as an unordered list
 		function renderSearchResults(searchResults) {
 				// selects the unordered list element search-results-list
 				const ul = document.querySelector('#search-results-list')
@@ -88,7 +99,7 @@
 
 		// function that is called whenever a city has been selected
 		// HINT: think about what should be rendering on the screen whenever a city is selected and what information is needed to make that happen 
-		function selectCity(fullName, name, state, lat, lon) {
+		async function selectCity(fullName, name, state, lat, lon) {
 			// hides the search-results-list since it is not needed right now
 			document.querySelector('#search-results-list').className = 'hidden'
 			// sets the global city variable
@@ -103,6 +114,33 @@
 			//printing the city object to the console
 			console.log(city);
             // BEGIN CODING HERE
+			document.querySelector('#date').innerText = formatDate()
+			document.querySelector('#weather-for-city').innerText = "Weather for " + city.name + ", " + city.state
+			let weatherApiCall = `http://api.openweathermap.org/data/2.5/forecast?lat=${city.lat}&lon=${city.lon}&units=imperial&appid=${apiKey}`
+			let weatherResponse = await fetch(weatherApiCall);
+			let weatherData = await weatherResponse.json();
+			document.querySelector('#weather-condition').innerText = weatherData.list[0].weather[0].main
+			document.querySelector('#current-temp').innerText = Math.round(weatherData.list[0].main.temp) + "°"
+			if (weatherData.list[0].weather[0].main == "Clear") {
+				document.querySelector('#condition-picture')
+			}
+			let aqiApiCall = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
+			let aqiResponse = await fetch(aqiApiCall)
+			let aqiData = await aqiResponse.json()
+			document.querySelector('#aqi').innerText = "AQI: " + aqiData.list[0].main.aqi
+			for (let i = 0; i < 41; i+=8)
+			{
+				const img = document.create("img")
+
+			}
+
+			
 		}
+		// function convertUnixToDay(unixTimestamp) {
+		// 	const date = new Date(unixTimestamp * 1000)
+		// 	const dayOfWeek = date.getDay();
+		// 	const dayOfMonth = date.getDate();
+
+		// }
 	</script>
 </html>
