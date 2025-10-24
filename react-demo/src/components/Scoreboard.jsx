@@ -10,7 +10,7 @@ const Scoreboard = (props) => {
             {props.team1} vs {props.team2}
             <div>
                 <button onClick={() => setTeam1Score(team1Score+1)}>Add one to {props.team1}</button>
-                <button onClick={() => setTeam1Score(team1Score+1)}>Add one to {props.team2}</button>
+                <button onClick={() => setTeam2Score(team2Score+1)}>Add one to {props.team2}</button>
             </div>
             <div>
                 <p>{props.team1}: {team1Score}</p>

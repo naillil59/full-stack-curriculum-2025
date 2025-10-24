@@ -19,7 +19,11 @@
 					<h1 id="current-temp"></h1>
 					<h4 id="aqi"></h4>
 				</div>
-				<img src="" id="condition-picture">
+				<img src="" class="condition-picture">
+			</div>
+			<br>
+			<br>
+			<div id="forecast-container">
 			</div>
 		</div> 
 	</div>
@@ -100,6 +104,8 @@
 		// function that is called whenever a city has been selected
 		// HINT: think about what should be rendering on the screen whenever a city is selected and what information is needed to make that happen 
 		async function selectCity(fullName, name, state, lat, lon) {
+			const forecast = document.querySelector("#forecast-container")
+			forecast.innerHTML = ""
 			// hides the search-results-list since it is not needed right now
 			document.querySelector('#search-results-list').className = 'hidden'
 			// sets the global city variable
@@ -114,33 +120,93 @@
 			//printing the city object to the console
 			console.log(city);
             // BEGIN CODING HERE
+			//generate today's date
 			document.querySelector('#date').innerText = formatDate()
 			document.querySelector('#weather-for-city').innerText = "Weather for " + city.name + ", " + city.state
+			//call api for today's weather and get data
+			let todaysWeatherApiCall = `https://api.openweathermap.org/data/2.5/weather?lat=${city.lat}&lon=${city.lon}&units=imperial&appid=${apiKey}`
+			let todayResponse = await fetch(todaysWeatherApiCall)
+			let todayData = await todayResponse.json()
+			//call api for 5 day forecast data
 			let weatherApiCall = `http://api.openweathermap.org/data/2.5/forecast?lat=${city.lat}&lon=${city.lon}&units=imperial&appid=${apiKey}`
 			let weatherResponse = await fetch(weatherApiCall);
 			let weatherData = await weatherResponse.json();
-			document.querySelector('#weather-condition').innerText = weatherData.list[0].weather[0].main
-			document.querySelector('#current-temp').innerText = Math.round(weatherData.list[0].main.temp) + "°"
-			if (weatherData.list[0].weather[0].main == "Clear") {
-				document.querySelector('#condition-picture')
+			const jsonString = JSON.stringify(weatherData)
+			const jsonObject = JSON.parse(jsonString)
+			//grab only the list that contains the 5 day forecast split into 3 hour increments
+			listOnly = jsonObject.list
+			//create array that stores min and max temps for each day
+			const dailyTemps = []
+			for (let day = 0; day < 5; day++) {
+				const dayData = listOnly.slice(day * 8, (day*8 + 8))
+				console.log(dayData)
+				const temps = dayData.map(item => item.main.temp)
+				const minTemp = Math.min(...temps)
+				const maxTemp = Math.max(...temps)
+				dailyTemps.push({minTemp, maxTemp})
 			}
+			//create separate array for the weather conditions for the next 5 days
+			const weatherCondition = []
+			//recorded conditions are at 12pm (12/3=4 so start at 4)
+			for (let i = 4; i < listOnly.length; i+=8) {
+				weatherCondition.push(listOnly[i].weather[0].main)
+			}
+			//display today's weather
+			document.querySelector('#weather-condition').innerText = todayData.weather[0].main
+			document.querySelector('#current-temp').innerText = Math.round(todayData.main.temp) + "°"
+			document.querySelector('.condition-picture').src = conditionImage(todayData.weather[0].main)
+			//call api for AQI and display
 			let aqiApiCall = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
 			let aqiResponse = await fetch(aqiApiCall)
 			let aqiData = await aqiResponse.json()
 			document.querySelector('#aqi').innerText = "AQI: " + aqiData.list[0].main.aqi
-			for (let i = 0; i < 41; i+=8)
+			//create image for forecasts
+			for (let i = 0; i < 5; i++)
 			{
-				const img = document.create("img")
-
+				const box = document.createElement("div")
+				box.style.background = "white";
+				box.style.width = "80%";
+				box.style.height = "100%";
+				box.style.margin = "2%"
+				box.style.padding = "2%"
+				box.style.display = "flex";
+				box.style.flexDirection = "column";
+				box.style.justifyContent = "center"
+				box.innerHTML = `
+					<div>
+						<h2>${formatDate(i+1)}</h2>
+					</div>
+						<img src="${conditionImage(weatherCondition[i])}">
+					<div>
+					<div>
+				    	<h1>${Math.round(dailyTemps[i].maxTemp) + "° to " + Math.round(dailyTemps[i].minTemp) + "°"}</h1>
+				 	</div>	
+				`
+				const title = box.querySelector("h2")
+				title.style.textAlign = "center"
+				title.style.fontSize = ".7rem"
+				title.style.margin = "5%"
+				const temps = box.querySelector("h1")
+				temps.style.textAlign = "center"
+				temps.style.fontSize = "1rem"
+				temps.style.margin = "5%"
+				forecast.appendChild(box)
 			}
 
-			
 		}
-		// function convertUnixToDay(unixTimestamp) {
-		// 	const date = new Date(unixTimestamp * 1000)
-		// 	const dayOfWeek = date.getDay();
-		// 	const dayOfMonth = date.getDate();
 
-		// }
+		//returns image for corresponding weather condition
+		function conditionImage(weatherCondition)
+		{
+			if (weatherCondition == "Clear"){
+				return "./icons/01d.svg"
+			}
+			else if (weatherCondition == "Clouds"){
+				return "./icons/03d.svg"
+			}
+			else if (weatherCondition == "Rain"){
+				return "./icons/09d.svg"
+			}
+		}
 	</script>
 </html>
