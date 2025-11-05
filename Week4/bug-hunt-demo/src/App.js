@@ -18,6 +18,7 @@ export default function App() {
     setCounter(counter + 1);
   }, []);
 
+
   // 2. We want to log out the value of counterTwo after we increase it, why doesn't it log the new value?
   // How would you log the new value rather than the old one?
   const setCountValue = () => {

@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
+import TodaysWeather from "./TodaysWeather.js"
 import "../styles/MainContainer.css"; // Import the CSS file for MainContainer
+import WeatherCards from "./WeatherCards";
+import clearIcon from "../icons/01d.svg";
+import cloudsIcon from "../icons/03d.svg";
+import rainIcon from "../icons/09d.svg";
 
 function MainContainer(props) {
-
   function formatDate(daysFromNow = 0) {
     let output = "";
     var date = new Date();
@@ -11,6 +15,19 @@ function MainContainer(props) {
     output += " " + date.getDate();
     return output;
   }
+
+  function conditionImage(weatherCondition) {
+          switch (weatherCondition) {
+            case "Clear":
+              return clearIcon;
+            case "Clouds":
+              return cloudsIcon;
+            case "Rain":
+              return rainIcon;
+            default:
+              return cloudsIcon; // fallback icon
+          }
+        }
 
   /*
   STEP 1: IMPORTANT NOTICE!
@@ -28,7 +45,10 @@ function MainContainer(props) {
   (e.g., 'weather') and its corresponding setter function (e.g., 'setWeather'). The initial state can be 
   null or an empty object.
   */
-  
+
+  const[todaysWeather, setTodaysWeather] = useState();
+  const[weatherForecast, setWeatherForecast] = useState();
+  const[aqi, setAqi] = useState();   
   
   /*
   STEP 3: Fetch Weather Data When City Changes.
@@ -43,6 +63,42 @@ function MainContainer(props) {
   After fetching the data, use the 'setWeather' function from the 'useState' hook to set the weather data 
   in your state.
   */
+
+  async function fetchTodaysData() {
+    let todaysWeatherApiCall = `https://api.openweathermap.org/data/2.5/weather?lat=${props.selectedCity.lat}&lon=${props.selectedCity.lon}&units=imperial&appid=${props.apiKey}`;
+    let todayResponse = await fetch(todaysWeatherApiCall);
+    let todayData = await todayResponse.json();
+    return todayData;
+  }
+
+  async function fetchForecastData() {
+    let weatherForecastApiCall = `http://api.openweathermap.org/data/2.5/forecast?lat=${props.selectedCity.lat}&lon=${props.selectedCity.lon}&units=imperial&appid=${props.apiKey}`;
+    let weatherResponse = await fetch(weatherForecastApiCall);
+    let weatherData = await weatherResponse.json();
+    const jsonString = JSON.stringify(weatherData);
+    const jsonObject = JSON.parse(jsonString);
+    return jsonObject;
+  }
+
+  async function fetchAqiData(){
+    let aqiApiCall = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${props.selectedCity.lat}&lon=${props.selectedCity.lon}&appid=${props.apiKey}`
+    let aqiResponse = await fetch(aqiApiCall)
+    let aqiData = await aqiResponse.json()
+    return aqiData
+  }
+
+  useEffect(() => {
+    if (!props.selectedCity) return;
+    async function fetchAllData() {
+      const today = await fetchTodaysData();
+      const forecast = await fetchForecastData();
+      const air = await fetchAqiData();
+      setTodaysWeather(today);
+      setWeatherForecast(forecast);
+      setAqi(air);
+    }
+    fetchAllData();
+  }, [props.selectedCity]);
   
   
   return (
@@ -58,7 +114,18 @@ function MainContainer(props) {
         Break down the data object and figure out what you want to display (e.g., temperature, weather description).
         This is a good section to play around with React components! Create your own - a good example could be a WeatherCard
         component that takes in props, and displays data for each day of the week.
-        */}
+        */
+        }
+        {!weatherForecast || !aqi ? (<div> </div>) : (
+          <>
+           <TodaysWeather conditionImage={conditionImage} todaysWeather={todaysWeather} aqi={aqi} formatDate={formatDate} city={props.selectedCity}></TodaysWeather>
+           <br />
+           <br />
+           <div>
+           <WeatherCards weatherForecastData={weatherForecast} formatDate={formatDate} conditionImage={conditionImage}></WeatherCards>
+           </div>  
+          </>
+        )}
       </div>
     </div>
   );
