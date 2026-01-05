@@ -1,0 +1,12 @@
+// Set up a connection to firebase
+var admin = require("firebase-admin")
+
+var serviceAccount = require("./cred.json")
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+})
+
+const db = admin.firestore()
+
+module.exports = db

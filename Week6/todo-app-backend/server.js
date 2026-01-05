@@ -42,13 +42,61 @@ app.get("/tasks", async (req, res) => {
 });
 
 // GET: Endpoint to retrieve all tasks for a user
-// ... 
+app.get("/tasks/:user", async (req, res) => {
+  try {
+    const user = req.params.user
+    const snapshot = await db.collection("tasks").where("user", "==", user).get();
+    let tasks = [];
+    // Looping through each document and collecting data
+    snapshot.forEach((doc) => {
+      if (doc.data().user == req.params.user) {
+        tasks.push({
+          id: doc.id,  // Document ID from Firestore
+          ...doc.data(),  // Document data
+        });
+      }
+    });
+    // Sending a successful response with the tasks data
+    res.status(200).send(tasks);
+  } catch (error) {
+    // Sending an error response in case of an exception
+    res.status(500).send(error.message);
+  }
+});
 
 // POST: Endpoint to add a new task
-// ...
+app.post('/tasks', async (req,res) => {
+  try {
+    const newTask = {
+      user: req.body.user,
+      name: req.body.name,
+      finished: req.body.finished
+    }
+    const taskRef = await db.collection("tasks").add(newTask);
+    res.json({
+      id: taskRef.id,
+      ...newTask
+    })
+  } catch (error) {
+    // Sending an error response in case of an exception
+    res.status(500).send(error.message);
+  }
+});
 
 // DELETE: Endpoint to remove a task
-// ...
+app.delete('/tasks/:id', async (req, res) => {
+  try {
+    const taskId = req.params.id
+    const taskRef = db.collection("tasks").doc(taskId)
+    await taskRef.delete();
+    res.json({
+      message: `Task ${taskId} deleted successfully.`
+    })
+  } catch (error) {
+    // Sending an error response in case of an exception
+    res.status(500).send(error.message);
+  }
+});
 
 // Setting the port for the server to listen on
 const PORT = process.env.PORT || 3001;
