@@ -2,7 +2,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const serverless = require("serverless-http");
 
 // Creating an instance of Express
 const app = express();
@@ -110,11 +109,9 @@ app.delete('/tasks/:id', async (req, res) => {
   }
 });
 
-// Setting the port for the server to listen on
-// const PORT = process.env.PORT || 3001;
-// // Starting the server
-// app.listen(PORT, () => {
-//   console.log(`Server started on port ${PORT}`);
-// });
-
-module.exports.handler = serverless(app);
+//Setting the port for the server to listen on
+const PORT = process.env.PORT || 3001;
+// Starting the server
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
+});
