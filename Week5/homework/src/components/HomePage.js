@@ -33,7 +33,7 @@ export default function HomePage() {
     if (!currentUser) {
       navigate("/login")
     } else {
-      fetch(`http://localhost:3001/tasks/${currentUser}`)
+      fetch(`http://localhost:3001/tasks/${currentUser.uid}`)
         .then((response) => response.json())
         .then((data) => {
           setTaskList(data)
@@ -58,7 +58,7 @@ export default function HomePage() {
           'Content-Type': "application/json"
         },
         body: JSON.stringify({
-          user: currentUser,
+          user: currentUser.uid,
           name: newTaskName,
           finished: false
         })

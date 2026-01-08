@@ -15,15 +15,19 @@ function LoginPage() {
   const theme = useTheme();
 
   // TODO: Extract login function and error from our authentication context.
-  const {loginError, login} = useAuth()
+  const {loginError, login, register} = useAuth()
 
   // State to hold the username and password entered by the user.
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   // TODO: Handle login function.
   const handleLogin = () => {
-    login(username, password)
+    login(email, password)
+  };
+
+  const handleRegister = () => {
+    register(email, password)
   };
 
   return (
@@ -47,7 +51,7 @@ function LoginPage() {
           src="/longhorn.jpg"
         ></Box>
         <Typography component="h1" variant="h4" fontWeight="bold">
-          Login
+          Login/Register
         </Typography>
         <Box sx={{ mt: 1 }}>
           <TextField
@@ -55,13 +59,13 @@ function LoginPage() {
             margin="normal"
             required
             fullWidth
-            id="username"
-            label="Username"
+            id="email"
+            label="Email"
             InputLabelProps={{ shrink: true }}
-            placeholder="admin"
+            placeholder="Email"
             autoFocus
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <TextField
             variant="outlined"
@@ -72,7 +76,7 @@ function LoginPage() {
             type="password"
             id="password"
             InputLabelProps={{ shrink: true }}
-            placeholder="racecar"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -85,6 +89,16 @@ function LoginPage() {
             onClick={handleLogin}
           >
             Login
+          </Button>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            sx={{ mt: 3, mb: 2 }}
+            onClick={handleRegister}
+          >
+            Register
           </Button>
         </Box>
         {/* TODO: Display Login Error if it exists */}
