@@ -105,12 +105,9 @@ app.delete('/tasks/:id', async (req, res) => {
   }
 });
 
-module.exports = app;
-module.exports.handler = serverless(app);
-
 // Setting the port for the server to listen on
-// const PORT = process.env.PORT || 3001;
-// // Starting the server
-// app.listen(PORT, () => {
-//   console.log(`Server started on port ${PORT}`);
-// });
+const PORT = process.env.PORT || 3001;
+// Starting the server
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
+});
