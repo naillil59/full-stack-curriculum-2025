@@ -13,8 +13,15 @@ require("dotenv").config();
 const db = require("./firebase");
 
 // Middlewares to handle cross-origin requests and to parse the body of incoming requests to JSON
-app.use(cors({ origin: "https://todo-frontend-ruddy-psi.vercel.app" }));
+app.use(cors({
+  origin: "https://todo-frontend-ruddy-psi.vercel.app",
+  methods: ["GET", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 app.use(bodyParser.json());
+
+app.options("*", (req, res) => res.sendStatus(200));
 
 // Your API routes will go here...
 
