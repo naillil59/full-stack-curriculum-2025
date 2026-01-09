@@ -30,7 +30,7 @@ app.use(bodyParser.json());
 // Your API routes will go here...
 
 // GET: Endpoint to retrieve all tasks
-app.get("/tasks", async (req, res) => {
+app.get("/api/tasks", async (req, res) => {
   try {
     // Fetching all documents from the "tasks" collection in Firestore
     const snapshot = await db.collection("tasks").get();
@@ -53,7 +53,7 @@ app.get("/tasks", async (req, res) => {
 });
 
 // GET: Endpoint to retrieve all tasks for a user
-app.get("/tasks/:user", async (req, res) => {
+app.get("/api/tasks/:user", async (req, res) => {
   try {
     const user = req.params.user
     const snapshot = await db.collection("tasks").where("user", "==", user).get();
@@ -76,7 +76,7 @@ app.get("/tasks/:user", async (req, res) => {
 });
 
 // POST: Endpoint to add a new task
-app.post('/tasks', async (req,res) => {
+app.post('/api/tasks', async (req,res) => {
   try {
     const newTask = {
       user: req.body.user,
@@ -95,7 +95,7 @@ app.post('/tasks', async (req,res) => {
 });
 
 // DELETE: Endpoint to remove a task
-app.delete('/tasks/:id', async (req, res) => {
+app.delete('/api/tasks/:id', async (req, res) => {
   try {
     const taskId = req.params.id
     const taskRef = db.collection("tasks").doc(taskId)
